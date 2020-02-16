@@ -1,0 +1,13 @@
+{  
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "outDir": "./dist",  
+        "allowJs": false,  
+        "target": "es2015",
+        "declaration": true
+    },  
+    "include": [  
+        "./src/**/*.ts"  
+    ]  
+}

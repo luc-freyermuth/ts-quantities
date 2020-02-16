@@ -1,0 +1,41 @@
+{
+  "name": "ts-quantities",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "readmeFilename": "README.md",
+  "description": "JavaScript and Typescript library for quantity calculation and unit conversion",
+  "version": "2.0.0",
+  "keywords": [
+    "conversion",
+    "convert",
+    "imperial",
+    "measure",
+    "measurement",
+    "metric",
+    "parse",
+    "parser",
+    "physical",
+    "quantity",
+    "quantities",
+    "temperature",
+    "unit",
+    "units",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Luc Freyermuth <luc.freyermuth@gmail.com>",
+  "contributors": [
+    "Julien Sanchez <julien.sanchez@gmail.com>",
+    "Rage Shadowman <ralph@crc-corp.com>"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "jasmine-node spec/",
+    "build": "tsc -p .",
+    "watch": "tsc -w -p ."
+  },
+  "devDependencies": {
+    "jasmine-node": "^3.0.0",
+    "typescript": "^3.7.5"
+  }
+}
