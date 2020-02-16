@@ -100,20 +100,19 @@ export function toString(
  *
  * @returns {string} quantity as string
  */
+export function format(this: Qty, targetUnits?: string, formatter?: Function): string;
+export function format(this: Qty, formatter?: Function): string;
 export function format(
     this: Qty,
-    targetUnits: string | Function,
-    formatter: Function
-) {
-    if (arguments.length === 1) {
-        if (typeof targetUnits === 'function') {
-            formatter = targetUnits;
-            targetUnits = undefined;
-        }
+    targetUnitsOrFormatter?: string | Function,
+    formatter?: Function
+): string {
+    if (typeof targetUnitsOrFormatter === 'function') {
+        return this.format(undefined, targetUnitsOrFormatter)
     }
 
     formatter = formatter || Qty.formatter;
-    var targetQty = this.to(targetUnits);
+    var targetQty = this.to(targetUnitsOrFormatter);
     return formatter.call(this, targetQty.scalar, targetQty.units());
 }
 

@@ -20,14 +20,14 @@ import QtyError, { throwIncompatibleUnits } from './error.js';
  * weight.to("lb"); // => Qty("55.11556554621939 lbs");
  * weight.to(Qty("3 g")); // => Qty("25000 g"); // scalar of passed Qty is ignored
  */
-export function to(this: Qty, other) {
+export function to(this: Qty, other: Qty | string) {
     var cached, target;
 
     if (other === undefined || other === null) {
         return this;
     }
 
-    if (!isString(other)) {
+    if (other instanceof Qty) {
         return this.to(other.units());
     }
 
@@ -162,7 +162,7 @@ export function toPrec(this: Qty, precQuantity: number | string | Qty) {
  * var convertedSerie = largeSerie.map(converter);
  *
  */
-export function swiftConverter(srcUnits, dstUnits) {
+export function swiftConverter(srcUnits: string, dstUnits: string) {
     var srcQty = new Qty(srcUnits);
     var dstQty = new Qty(dstUnits);
 
@@ -170,7 +170,7 @@ export function swiftConverter(srcUnits, dstUnits) {
         return identity;
     }
 
-    var convert;
+    var convert: (value: number) => number;
     if (!srcQty.isTemperature()) {
         convert = function(value) {
             return (value * srcQty.baseScalar) / dstQty.baseScalar;
@@ -182,24 +182,21 @@ export function swiftConverter(srcUnits, dstUnits) {
         };
     }
 
-    return function converter(value) {
-        var i, length, result;
+    function converter(value: number): number;
+    function converter(value: number[]): number[];
+    function converter(value: number | number[]) {
         if (!Array.isArray(value)) {
             return convert(value);
         } else {
-            length = value.length;
-            result = [];
-            for (i = 0; i < length; i++) {
-                result.push(convert(value[i]));
-            }
-            return result;
+            return value.map(convert);
         }
-    };
+    }
+    return converter;
 }
 
 var baseUnitCache = {};
 
-function toBaseUnits(numerator, denominator) {
+function toBaseUnits(numerator: string[], denominator: string[]): Qty {
     var num = [];
     var den = [];
     var q = 1;
