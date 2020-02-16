@@ -1,7 +1,7 @@
 import { Qty } from './constructor.js';
 import { uniq } from './utils.js';
 
-var KINDS = {
+var KINDS: { [key: string]: string } = {
     '-312078': 'elastance',
     '-312058': 'resistance',
     '-312038': 'inductance',
@@ -59,7 +59,7 @@ var KINDS = {
  *
  * @returns {string[]} names of kinds of units
  */
-export function getKinds() {
+export function getKinds(): string[] {
     return uniq(
         Object.keys(KINDS).map(function(knownSignature) {
             return KINDS[knownSignature];
@@ -67,6 +67,6 @@ export function getKinds() {
     );
 }
 
-export function kind(this: Qty) {
+export function kind(this: Qty): string {
     return KINDS[this.signature.toString()];
 }

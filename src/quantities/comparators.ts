@@ -1,24 +1,24 @@
-import { Qty } from './constructor';
+import { Qty, UnitSource } from './constructor';
 import { isString } from './utils';
 import { throwIncompatibleUnits } from './error';
 
-export function eq(this: Qty, other) {
+export function eq(this: Qty, other: UnitSource) {
     return this.compareTo(other) === 0;
 }
 
-export function lt(this: Qty, other) {
+export function lt(this: Qty, other: UnitSource) {
     return this.compareTo(other) === -1;
 }
 
-export function lte(this: Qty, other) {
+export function lte(this: Qty, other: UnitSource) {
     return this.eq(other) || this.lt(other);
 }
 
-export function gt(this: Qty, other) {
+export function gt(this: Qty, other: UnitSource) {
     return this.compareTo(other) === 1;
 }
 
-export function gte(this: Qty, other) {
+export function gte(this: Qty, other: UnitSource) {
     return this.eq(other) || this.gt(other);
 }
 
@@ -34,7 +34,7 @@ export function gte(this: Qty, other) {
 //     Qty("10ohm").inverse().compareTo("10S") == -1
 //
 //   If including inverses in the sort is needed, I suggest writing: Qty.sort(qtyArray,units)
-export function compareTo(this: Qty, other) {
+export function compareTo(this: Qty, other: UnitSource): -1 | 0 | 1 {
     if (isString(other)) {
         return this.compareTo(new Qty(other));
     }
@@ -53,6 +53,6 @@ export function compareTo(this: Qty, other) {
 // Return true if quantities and units match
 // Unit("100 cm").same(Unit("100 cm"))  # => true
 // Unit("100 cm").same(Unit("1 m"))     # => false
-export function same(this: Qty, other) {
+export function same(this: Qty, other: Qty): boolean {
     return this.scalar === other.scalar && this.units() === other.units();
 }

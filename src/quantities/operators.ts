@@ -1,4 +1,4 @@
-import { Qty } from './constructor.js';
+import { Qty, UnitSource, Source } from './constructor.js';
 import QtyError, { throwIncompatibleUnits } from './error.js';
 import { PREFIX_VALUES, UNITY, UNITY_ARRAY } from './definitions.js';
 import { isNumber, isString, mulSafe, divSafe } from './utils.js';
@@ -9,7 +9,7 @@ import {
 } from './temperature.js';
 
 // Returns new instance with units of this
-export function add(this: Qty, other) {
+export function add(this: Qty, other: UnitSource): Qty {
     if (isString(other)) {
         other = new Qty(other);
     }
@@ -33,7 +33,7 @@ export function add(this: Qty, other) {
     });
 }
 
-export function sub(this: Qty, other) {
+export function sub(this: Qty, other: UnitSource) {
     if (isString(other)) {
         other = new Qty(other);
     }
@@ -59,7 +59,7 @@ export function sub(this: Qty, other) {
     });
 }
 
-export function mul(this: Qty, other) {
+export function mul(this: Qty, other: Source) {
     if (isNumber(other)) {
         return new Qty({
             scalar: mulSafe(this.scalar, other),
@@ -100,7 +100,7 @@ export function mul(this: Qty, other) {
     });
 }
 
-export function div(this: Qty, other) {
+export function div(this: Qty, other: Source) {
     if (isNumber(other)) {
         if (other === 0) {
             throw new QtyError('Divide by zero');
@@ -148,7 +148,7 @@ export function div(this: Qty, other) {
 }
 
 // Returns a Qty that is the inverse of this Qty,
-export function inverse(this: Qty) {
+export function inverse(this: Qty): Qty {
     if (this.isTemperature()) {
         throw new QtyError('Cannot divide with temperatures');
     }
@@ -162,7 +162,7 @@ export function inverse(this: Qty) {
     });
 }
 
-function cleanTerms(num1, den1, num2, den2) {
+function cleanTerms(num1: string[], den1: string[], num2: string[], den2: string[]): [string[], string[], number] {
     function notUnity(val) {
         return val !== UNITY;
     }
@@ -174,7 +174,7 @@ function cleanTerms(num1, den1, num2, den2) {
 
     var combined = {};
 
-    function combineTerms(terms, direction) {
+    function combineTerms(terms: string[], direction: -1 | 1) {
         var k;
         var prefix;
         var prefixValue;
@@ -211,9 +211,9 @@ function cleanTerms(num1, den1, num2, den2) {
     combineTerms(num2, 1);
     combineTerms(den2, -1);
 
-    var num = [];
-    var den = [];
-    var scale = 1;
+    var num: string[] = [];
+    var den: string[] = [];
+    let scale: number = 1;
 
     for (var prop in combined) {
         if (combined.hasOwnProperty(prop)) {

@@ -1,4 +1,4 @@
-import { Qty } from './constructor.js';
+import { Qty, UnitSource, QtyObjects, Source } from './constructor.js';
 import { PREFIX_VALUES, UNIT_VALUES } from './definitions.js';
 import { toDegrees, toTemp, toTempK } from './temperature.js';
 import { divSafe, identity, isNumber, isString, mulSafe } from './utils.js';
@@ -20,7 +20,7 @@ import QtyError, { throwIncompatibleUnits } from './error.js';
  * weight.to("lb"); // => Qty("55.11556554621939 lbs");
  * weight.to(Qty("3 g")); // => Qty("25000 g"); // scalar of passed Qty is ignored
  */
-export function to(this: Qty, other: Qty | string) {
+export function to(this: Qty, other: UnitSource): Qty {
     var cached, target;
 
     if (other === undefined || other === null) {
@@ -69,7 +69,7 @@ export function to(this: Qty, other: Qty | string) {
 
 // convert to base SI units
 // results of the conversion are cached so subsequent calls to this will be fast
-export function toBase(this: Qty) {
+export function toBase(this: Qty): Qty {
     if (this.isBase()) {
         return this;
     }
@@ -78,7 +78,7 @@ export function toBase(this: Qty) {
         return toTempK(this);
     }
 
-    var cached = baseUnitCache[this.units()];
+    let cached: Qty = baseUnitCache[this.units()];
     if (!cached) {
         cached = toBaseUnits(this.numerator, this.denominator);
         baseUnitCache[this.units()] = cached;
@@ -87,7 +87,7 @@ export function toBase(this: Qty) {
 }
 
 // Converts the unit back to a float if it is unitless.  Otherwise raises an exception
-export function toFloat(this: Qty) {
+export function toFloat(this: Qty): number {
     if (this.isUnitless()) {
         return this.scalar;
     }
@@ -112,7 +112,7 @@ export function toFloat(this: Qty) {
  * Qty('1.146 MPa').toPrec('0.1 bar'); // returns 1.15 MPa
  *
  */
-export function toPrec(this: Qty, precQuantity: number | string | Qty) {
+export function toPrec(this: Qty, precQuantity: Source): Qty {
     let precQty: Qty;
     if (isString(precQuantity)) {
         precQty = new Qty(precQuantity);
@@ -194,7 +194,7 @@ export function swiftConverter(srcUnits: string, dstUnits: string) {
     return converter;
 }
 
-var baseUnitCache = {};
+const baseUnitCache: QtyObjects = {};
 
 function toBaseUnits(numerator: string[], denominator: string[]): Qty {
     var num = [];

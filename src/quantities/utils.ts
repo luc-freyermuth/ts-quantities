@@ -5,7 +5,7 @@
  *
  * @returns {boolean} true if value is a string, false otherwise
  */
-export function isString(value) {
+export function isString(value: any): value is string {
     return typeof value === 'string' || value instanceof String;
 }
 
@@ -22,7 +22,7 @@ var isFiniteImpl = Number.isFinite || window.isFinite;
  *
  * @returns {boolean} true if value is a number, false otherwise
  */
-export function isNumber(value) {
+export function isNumber(value: any): value is number {
     // Number.isFinite allows not to consider NaN or '1' as numbers
     return isFiniteImpl(value);
 }
@@ -42,20 +42,20 @@ export function identity(value) {
  *
  * @returns {string[]} a new array of strings without duplicates
  */
-export function uniq(strings) {
+export function uniq(strings: string[]): string[] {
     var seen = {};
     return strings.filter(function(item) {
         return seen.hasOwnProperty(item) ? false : (seen[item] = true);
     });
 }
 
-export function compareArray(array1, array2) {
+export function compareArray<T>(array1: T[], array2: T[]): boolean {
     if (array2.length !== array1.length) {
         return false;
     }
     for (var i = 0; i < array1.length; i++) {
-        if (array2[i].compareArray) {
-            if (!array2[i].compareArray(array1[i])) {
+        if ((array2[i] as any).compareArray) {
+            if (!(array2[i] as any).compareArray(array1[i])) {
                 return false;
             }
         }
@@ -74,7 +74,7 @@ export function compareArray(array1, array2) {
  *
  * @returns {number} result
  */
-export function mulSafe(...args) {
+export function mulSafe(...args: number[]): number {
     var result = 1,
         decimals = 0;
     for (var i = 0; i < args.length; i++) {

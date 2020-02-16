@@ -1,7 +1,9 @@
-import { Qty, isQty } from './constructor.js';
+import { Qty, isQty, Source } from './constructor.js';
 import { PREFIX_VALUES, OUTPUT_MAP, UNITY_ARRAY } from './definitions.js';
 import { compareArray, isNumber, isString, round } from './utils.js';
 import NestedMap from './nested-map.js';
+
+export type Formatter = typeof defaultFormatter;
 
 /**
  * Default formatter
@@ -11,7 +13,7 @@ import NestedMap from './nested-map.js';
  *
  * @returns {string} formatted result
  */
-export function defaultFormatter(scalar, units) {
+export function defaultFormatter(scalar: number, units: string): string {
     return (scalar + ' ' + units).trim();
 }
 
@@ -48,10 +50,13 @@ export function units(this: Qty): string {
  *
  * @returns {string} reparseable quantity as string
  */
+export function toString(this: Qty, maxDecimals: number): string;
+export function toString(this: Qty, precQty: Qty, maxDecimals: number): string;
+export function toString(this: Qty, targetUnits: string, maxDecimals?: number): string;
 export function toString(
     this: Qty,
-    targetUnitsOrMaxDecimalsOrPrec,
-    maxDecimals?
+    targetUnitsOrMaxDecimalsOrPrec: Source,
+    maxDecimals?: number
 ): string {
     var targetUnits;
     if (isNumber(targetUnitsOrMaxDecimalsOrPrec)) {
@@ -65,11 +70,12 @@ export function toString(
         );
     }
 
-    var out = this.to(targetUnits);
+    const outQty = this.to(targetUnits);
+    let out: string;
 
     var outScalar =
-        maxDecimals !== undefined ? round(out.scalar, maxDecimals) : out.scalar;
-    out = (outScalar + ' ' + out.units()).trim();
+        maxDecimals !== undefined ? round(outQty.scalar, maxDecimals) : outQty.scalar;
+    out = (outScalar + ' ' + outQty.units()).trim();
     return out;
 }
 
@@ -100,12 +106,12 @@ export function toString(
  *
  * @returns {string} quantity as string
  */
-export function format(this: Qty, targetUnits?: string, formatter?: Function): string;
-export function format(this: Qty, formatter?: Function): string;
+export function format(this: Qty, targetUnits?: string, formatter?: Formatter): string;
+export function format(this: Qty, formatter?: Formatter): string;
 export function format(
     this: Qty,
-    targetUnitsOrFormatter?: string | Function,
-    formatter?: Function
+    targetUnitsOrFormatter?: string | Formatter,
+    formatter?: Formatter
 ): string {
     if (typeof targetUnitsOrFormatter === 'function') {
         return this.format(undefined, targetUnitsOrFormatter)

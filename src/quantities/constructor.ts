@@ -14,6 +14,10 @@ import * as definitions from './definitions';
 import * as parse from './parse';
 import * as utils from './utils';
 
+export type UnitSource = Qty | string;
+export type Source = UnitSource | number;
+export type QtyObjects = { [key: string]: Qty };
+
 /**
  * Tests if a value is a Qty instance
  *
@@ -26,16 +30,17 @@ export function isQty(value) {
 }
 
 export class Qty {
-    scalar = null;
-    baseScalar = null;
-    signature = null;
-    _conversionCache = {};
-    numerator = UNITY_ARRAY;
-    denominator = UNITY_ARRAY;
-    initValue;
-    version: string;
-    _units: any;
-    _isBase: boolean;
+
+    readonly numerator: string[] = UNITY_ARRAY;
+    readonly denominator: string[] = UNITY_ARRAY;
+    readonly scalar: number;
+    readonly baseScalar: number;
+    readonly initValue: string;
+    
+    protected signature = null;
+    protected _conversionCache: QtyObjects = {};
+    protected _units: any;
+    protected _isBase: boolean;
 
     constructor(initValue, initUnits?) {
         assertValidConstructorArgs.apply(null, arguments);
@@ -121,6 +126,7 @@ export class Qty {
 
     // Global API as static functions
 
+    static version: string;
     static getKinds = kind.getKinds;
     static getAliases = definitions.getAliases;
     static getUnits = definitions.getUnits;

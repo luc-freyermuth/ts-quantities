@@ -1,10 +1,10 @@
-import { Qty, isQty } from './constructor.js';
+import { Qty, isQty, UnitSource } from './constructor.js';
 import { BASE_UNITS, UNITY, UNITY_ARRAY } from './definitions.js';
 import { compareArray, isString } from './utils.js';
 
 // returns true if no associated units
 // false, even if the units are "unitless" like 'radians, each, etc'
-export function isUnitless(this: Qty) {
+export function isUnitless(this: Qty): boolean {
     return [this.numerator, this.denominator].every(function(item) {
         return compareArray(item, UNITY_ARRAY);
     });
@@ -19,7 +19,7 @@ unit =~ "mm"
 if you want to do a regexp on the unit string do this ...
 unit.units =~ /regexp/
 */
-export function isCompatible(this: Qty, other): boolean {
+export function isCompatible(this: Qty, other: UnitSource): boolean {
     if (isString(other)) {
         return this.isCompatible(new Qty(other));
     }
@@ -49,7 +49,7 @@ export function isInverse(this: Qty, other) {
 }
 
 // Returns 'true' if the Unit is represented in base units
-export function isBase(this: Qty) {
+export function isBase(this: Qty): boolean {
     if (this._isBase !== undefined) {
         return this._isBase;
     }
