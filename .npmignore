@@ -1,0 +1,4 @@
+bench/
+bin/
+node_modules/
+spec/
