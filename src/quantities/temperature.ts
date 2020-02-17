@@ -21,9 +21,9 @@ export function isTemperature(this: Qty): boolean {
 }
 
 export function subtractTemperatures(lhs, rhs) {
-    var lhsUnits = lhs.units();
-    var rhsConverted = rhs.to(lhsUnits);
-    var dstDegrees = new Qty(getDegreeUnits(lhsUnits));
+    const lhsUnits = lhs.units();
+    const rhsConverted = rhs.to(lhsUnits);
+    const dstDegrees = new Qty(getDegreeUnits(lhsUnits));
     return new Qty({
         scalar: lhs.scalar - rhsConverted.scalar,
         numerator: dstDegrees.numerator,
@@ -32,7 +32,7 @@ export function subtractTemperatures(lhs, rhs) {
 }
 
 export function subtractTempDegrees(temp, deg) {
-    var tempDegrees = deg.to(getDegreeUnits(temp.units()));
+    const tempDegrees = deg.to(getDegreeUnits(temp.units()));
     return new Qty({
         scalar: temp.scalar - tempDegrees.scalar,
         numerator: temp.numerator,
@@ -41,7 +41,7 @@ export function subtractTempDegrees(temp, deg) {
 }
 
 export function addTempDegrees(temp, deg) {
-    var tempDegrees = deg.to(getDegreeUnits(temp.units()));
+    const tempDegrees = deg.to(getDegreeUnits(temp.units()));
     return new Qty({
         scalar: temp.scalar + tempDegrees.scalar,
         numerator: temp.numerator,
@@ -64,9 +64,9 @@ function getDegreeUnits(units) {
 }
 
 export function toDegrees(src, dst) {
-    var srcDegK = toDegK(src);
-    var dstUnits = dst.units();
-    var dstScalar;
+    const srcDegK = toDegK(src);
+    const dstUnits = dst.units();
+    let dstScalar;
 
     if (dstUnits === 'degK') {
         dstScalar = srcDegK.scalar;
@@ -90,8 +90,8 @@ export function toDegrees(src, dst) {
 }
 
 function toDegK(qty) {
-    var units = qty.units();
-    var q;
+    const units = qty.units();
+    let q;
     if (units.match(/(deg)[CFRK]/)) {
         q = qty.baseScalar;
     } else if (units === 'tempK') {
@@ -114,8 +114,8 @@ function toDegK(qty) {
 }
 
 export function toTemp(src, dst) {
-    var dstUnits = dst.units();
-    var dstScalar;
+    const dstUnits = dst.units();
+    let dstScalar;
 
     if (dstUnits === 'tempK') {
         dstScalar = src.baseScalar;
@@ -137,8 +137,8 @@ export function toTemp(src, dst) {
 }
 
 export function toTempK(qty) {
-    var units = qty.units();
-    var q;
+    const units = qty.units();
+    let q;
     if (units.match(/(deg)[CFRK]/)) {
         q = qty.baseScalar;
     } else if (units === 'tempK') {

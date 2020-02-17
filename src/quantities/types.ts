@@ -1,8 +1,8 @@
-import { Qty } from "..";
+import { Qty } from '..';
 
 export interface RegularObject<T> {
     [key: string]: T;
-};
+}
 
 export interface ScalarAndUnit {
     scalar: number;
@@ -12,3 +12,5 @@ export interface ScalarAndUnit {
 
 export type UnitSource = Qty | string;
 export type Source = UnitSource | number;
+
+export type UnitDefinition = [string[], number, string, string[]?, string[]?];

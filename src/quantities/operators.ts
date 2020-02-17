@@ -79,15 +79,15 @@ export function mul(this: Qty, other: Source): Qty {
     }
 
     // Quantities should be multiplied with same units if compatible, with base units else
-    var op1 = this;
-    var op2 = other;
+    const op1 = this;
+    let op2 = other;
 
     // so as not to confuse results, multiplication and division between temperature degrees will maintain original unit info in num/den
     // multiplication and division between deg[CFRK] can never factor each other out, only themselves: "degK*degC/degC^2" == "degK/degC"
     if (op1.isCompatible(op2) && op1.signature !== 400) {
         op2 = op2.to(op1);
     }
-    var numdenscale = cleanTerms(
+    const numdenscale = cleanTerms(
         op1.numerator,
         op1.denominator,
         op2.numerator,
@@ -126,15 +126,15 @@ export function div(this: Qty, other: Source): Qty {
     }
 
     // Quantities should be multiplied with same units if compatible, with base units else
-    var op1 = this;
-    var op2 = other;
+    const op1 = this;
+    let op2 = other;
 
     // so as not to confuse results, multiplication and division between temperature degrees will maintain original unit info in num/den
     // multiplication and division between deg[CFRK] can never factor each other out, only themselves: "degK*degC/degC^2" == "degK/degC"
     if (op1.isCompatible(op2) && op1.signature !== 400) {
         op2 = op2.to(op1);
     }
-    var numdenscale = cleanTerms(
+    const numdenscale = cleanTerms(
         op1.numerator,
         op1.denominator,
         op2.denominator,
@@ -163,7 +163,12 @@ export function inverse(this: Qty): Qty {
     });
 }
 
-function cleanTerms(num1: string[], den1: string[], num2: string[], den2: string[]): [string[], string[], number] {
+function cleanTerms(
+    num1: string[],
+    den1: string[],
+    num2: string[],
+    den2: string[]
+): [string[], string[], number] {
     function notUnity(val) {
         return val !== UNITY;
     }
@@ -173,13 +178,13 @@ function cleanTerms(num1: string[], den1: string[], num2: string[], den2: string
     den1 = den1.filter(notUnity);
     den2 = den2.filter(notUnity);
 
-    var combined = {};
+    const combined = {};
 
     function combineTerms(terms: string[], direction: -1 | 1) {
-        var k;
-        var prefix;
-        var prefixValue;
-        for (var i = 0; i < terms.length; i++) {
+        let k;
+        let prefix;
+        let prefixValue;
+        for (let i = 0; i < terms.length; i++) {
             if (PREFIX_VALUES[terms[i]]) {
                 k = terms[i + 1];
                 prefix = terms[i];
@@ -193,7 +198,7 @@ function cleanTerms(num1: string[], den1: string[], num2: string[], den2: string
             if (k && k !== UNITY) {
                 if (combined[k]) {
                     combined[k][0] += direction;
-                    var combinedPrefixValue = combined[k][2]
+                    const combinedPrefixValue = combined[k][2]
                         ? PREFIX_VALUES[combined[k][2]]
                         : 1;
                     combined[k][direction === 1 ? 3 : 4] *= divSafe(
@@ -212,20 +217,19 @@ function cleanTerms(num1: string[], den1: string[], num2: string[], den2: string
     combineTerms(num2, 1);
     combineTerms(den2, -1);
 
-    var num: string[] = [];
-    var den: string[] = [];
+    let num: string[] = [];
+    let den: string[] = [];
     let scale: number = 1;
 
-    for (var prop in combined) {
+    for (const prop in combined) {
         if (combined.hasOwnProperty(prop)) {
-            var item = combined[prop];
-            var n;
+            const item = combined[prop];
             if (item[0] > 0) {
-                for (n = 0; n < item[0]; n++) {
+                for (let n = 0; n < item[0]; n++) {
                     num.push(item[2] === null ? item[1] : [item[2], item[1]]);
                 }
             } else if (item[0] < 0) {
-                for (n = 0; n < -item[0]; n++) {
+                for (let n = 0; n < -item[0]; n++) {
                     den.push(item[2] === null ? item[1] : [item[2], item[1]]);
                 }
             }
@@ -241,10 +245,10 @@ function cleanTerms(num1: string[], den1: string[], num2: string[], den2: string
     }
 
     // Flatten
-    num = num.reduce(function(a, b) {
+    num = num.reduce((a, b) => {
         return a.concat(b);
     }, []);
-    den = den.reduce(function(a, b) {
+    den = den.reduce((a, b) => {
         return a.concat(b);
     }, []);
 

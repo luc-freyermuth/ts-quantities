@@ -14,7 +14,7 @@ export function isString(value: any): value is string {
  * To be dropped when ES6 is finalized. Obsolete browsers will
  * have to use ES6 polyfills.
  */
-var isFiniteImpl = Number.isFinite || window.isFinite;
+const isFiniteImpl = Number.isFinite || window.isFinite;
 /**
  * Tests if a value is a number
  *
@@ -43,8 +43,8 @@ export function identity(value) {
  * @returns {string[]} a new array of strings without duplicates
  */
 export function uniq(strings: string[]): string[] {
-    var seen = {};
-    return strings.filter(function(item) {
+    const seen = {};
+    return strings.filter(item => {
         return seen.hasOwnProperty(item) ? false : (seen[item] = true);
     });
 }
@@ -53,7 +53,7 @@ export function compareArray<T>(array1: T[], array2: T[]): boolean {
     if (array2.length !== array1.length) {
         return false;
     }
-    for (var i = 0; i < array1.length; i++) {
+    for (let i = 0; i < array1.length; i++) {
         if ((array2[i] as any).compareArray) {
             if (!(array2[i] as any).compareArray(array1[i])) {
                 return false;
@@ -75,10 +75,9 @@ export function compareArray<T>(array1: T[], array2: T[]): boolean {
  * @returns {number} result
  */
 export function mulSafe(...args: number[]): number {
-    var result = 1,
-        decimals = 0;
-    for (var i = 0; i < args.length; i++) {
-        var arg = args[i];
+    let result = 1;
+    let decimals = 0;
+    for (const arg of args) {
         decimals = decimals + getFractional(arg);
         result *= arg;
     }
@@ -99,8 +98,8 @@ export function divSafe(num: number, den: number) {
         throw new Error('Divide by zero');
     }
 
-    var factor = Math.pow(10, getFractional(den));
-    var invDen = factor / (factor * den);
+    const factor = Math.pow(10, getFractional(den));
+    const invDen = factor / (factor * den);
 
     return mulSafe(num, invDen);
 }
@@ -125,7 +124,7 @@ function getFractional(num) {
 
     // Faster than parsing strings
     // http://jsperf.com/count-decimals/2
-    var count = 0;
+    let count = 0;
     while (num % 1 !== 0) {
         num *= 10;
         count++;

@@ -2,7 +2,7 @@ import { Qty } from './constructor.js';
 import { uniq } from './utils.js';
 import { RegularObject } from './types.js';
 
-var KINDS: RegularObject<string> = {
+const KINDS: RegularObject<string> = {
     '-312078': 'elastance',
     '-312058': 'resistance',
     '-312038': 'inductance',
@@ -62,7 +62,7 @@ var KINDS: RegularObject<string> = {
  */
 export function getKinds(): string[] {
     return uniq(
-        Object.keys(KINDS).map(function(knownSignature) {
+        Object.keys(KINDS).map(knownSignature => {
             return KINDS[knownSignature];
         })
     );

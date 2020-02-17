@@ -5,7 +5,7 @@
 export default class QtyError extends Error {
     constructor(error: string) {
         super();
-        var err;
+        let err;
         if (!this) {
             err = Object.create(QtyError.prototype);
             QtyError.apply(err, error);

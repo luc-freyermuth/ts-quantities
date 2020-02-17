@@ -27,13 +27,12 @@ export function isQty(value) {
 }
 
 export class Qty {
-
     readonly numerator: string[] = UNITY_ARRAY;
     readonly denominator: string[] = UNITY_ARRAY;
     readonly scalar: number;
     readonly baseScalar: number;
     readonly initValue: string;
-    
+
     protected signature = null;
     protected _conversionCache: RegularObject<Qty> = {};
     protected _units: any;
@@ -115,7 +114,7 @@ export class Qty {
     div = operators.div;
     inverse = operators.inverse;
 
-    units = format.units;
+    units = format.getUnits;
     toString = format.toString;
     format = format.format;
 
@@ -188,7 +187,7 @@ function updateBaseScalar() {
         this.baseScalar = this.scalar;
         this.signature = unitSignature.call(this);
     } else {
-        var base = this.toBase();
+        const base = this.toBase();
         this.baseScalar = base.scalar;
         this.signature = base.signature;
     }

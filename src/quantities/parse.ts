@@ -3,11 +3,11 @@ import QtyError from './error.js';
 import { PREFIX_MAP, UNIT_MAP } from './definitions.js';
 import { Qty } from './constructor';
 
-var SIGN = '[+-]';
-var INTEGER = '\\d+';
-var SIGNED_INTEGER = SIGN + '?' + INTEGER;
-var FRACTION = '\\.' + INTEGER;
-var FLOAT =
+const SIGN = '[+-]';
+const INTEGER = '\\d+';
+const SIGNED_INTEGER = SIGN + '?' + INTEGER;
+const FRACTION = '\\.' + INTEGER;
+const FLOAT =
     '(?:' +
     INTEGER +
     '(?:' +
@@ -18,20 +18,20 @@ var FLOAT =
     '(?:' +
     FRACTION +
     ')';
-var EXPONENT = '[Ee]' + SIGNED_INTEGER;
-var SCI_NUMBER = '(?:' + FLOAT + ')(?:' + EXPONENT + ')?';
-var SIGNED_NUMBER = SIGN + '?\\s*' + SCI_NUMBER;
-var QTY_STRING = '(' + SIGNED_NUMBER + ')?' + '\\s*([^/]*)(?:/(.+))?';
-var QTY_STRING_REGEX = new RegExp('^' + QTY_STRING + '$');
+const EXPONENT = '[Ee]' + SIGNED_INTEGER;
+const SCI_NUMBER = '(?:' + FLOAT + ')(?:' + EXPONENT + ')?';
+const SIGNED_NUMBER = SIGN + '?\\s*' + SCI_NUMBER;
+const QTY_STRING = '(' + SIGNED_NUMBER + ')?' + '\\s*([^/]*)(?:/(.+))?';
+const QTY_STRING_REGEX = new RegExp('^' + QTY_STRING + '$');
 
-var POWER_OP = '\\^|\\*{2}';
+const POWER_OP = '\\^|\\*{2}';
 // Allow unit powers representing scalar, length, area, volume; 4 is for some
 // special case representations in SI base units.
-var SAFE_POWER = '[01234]';
-var TOP_REGEX = new RegExp(
+const SAFE_POWER = '[01234]';
+const TOP_REGEX = new RegExp(
     '([^ \\*\\d]+?)(?:' + POWER_OP + ')?(-?' + SAFE_POWER + '(?![a-zA-Z]))'
 );
-var BOTTOM_REGEX = new RegExp(
+const BOTTOM_REGEX = new RegExp(
     '([^ \\*\\d]+?)(?:' + POWER_OP + ')?(' + SAFE_POWER + '(?![a-zA-Z]))'
 );
 
@@ -53,12 +53,12 @@ export default function parse(val) {
     }
     val = val.trim();
 
-    var result = QTY_STRING_REGEX.exec(val);
+    let result = QTY_STRING_REGEX.exec(val);
     if (!result) {
         throw new QtyError(val + ': Quantity not recognized');
     }
 
-    var scalarMatch = result[1];
+    let scalarMatch = result[1];
     if (scalarMatch) {
         // Allow whitespaces between sign and scalar for loose parsing
         scalarMatch = scalarMatch.replace(/\s/g, '');
@@ -66,10 +66,12 @@ export default function parse(val) {
     } else {
         this.scalar = 1;
     }
-    var top = result[2];
-    var bottom = result[3];
+    let top = result[2];
+    let bottom = result[3];
 
-    var n, x, nx;
+    let n: number;
+    let x: string;
+    let nx: string;
     // TODO DRY me
     while ((result = TOP_REGEX.exec(top))) {
         n = parseFloat(result[2]);
@@ -83,7 +85,7 @@ export default function parse(val) {
         }
         x = result[1] + ' ';
         nx = '';
-        for (var i = 0; i < Math.abs(n); i++) {
+        for (let i = 0; i < Math.abs(n); i++) {
             nx += x;
         }
         if (n >= 0) {
@@ -106,7 +108,7 @@ export default function parse(val) {
         }
         x = result[1] + ' ';
         nx = '';
-        for (var j = 0; j < n; j++) {
+        for (let j = 0; j < n; j++) {
             nx += x;
         }
 
@@ -121,13 +123,13 @@ export default function parse(val) {
     }
 }
 
-var PREFIX_REGEX = Object.keys(PREFIX_MAP)
-    .sort(function(a, b) {
+const PREFIX_REGEX = Object.keys(PREFIX_MAP)
+    .sort((a, b) => {
         return b.length - a.length;
     })
     .join('|');
-var UNIT_REGEX = Object.keys(UNIT_MAP)
-    .sort(function(a, b) {
+const UNIT_REGEX = Object.keys(UNIT_MAP)
+    .sort((a, b) => {
         return b.length - a.length;
     })
     .join('|');
@@ -135,12 +137,12 @@ var UNIT_REGEX = Object.keys(UNIT_MAP)
  * Minimal boundary regex to support units with Unicode characters
  * \b only works for ASCII
  */
-var BOUNDARY_REGEX = '\\b|$';
-var UNIT_MATCH =
+const BOUNDARY_REGEX = '\\b|$';
+const UNIT_MATCH =
     '(' + PREFIX_REGEX + ')??(' + UNIT_REGEX + ')(?:' + BOUNDARY_REGEX + ')';
-var UNIT_TEST_REGEX = new RegExp('^\\s*(' + UNIT_MATCH + '[\\s\\*]*)+$');
-var UNIT_MATCH_REGEX = new RegExp(UNIT_MATCH, 'g'); // g flag for multiple occurences
-var parsedUnitsCache = {};
+const UNIT_TEST_REGEX = new RegExp('^\\s*(' + UNIT_MATCH + '[\\s\\*]*)+$');
+const UNIT_MATCH_REGEX = new RegExp(UNIT_MATCH, 'g'); // g flag for multiple occurences
+const parsedUnitsCache = {};
 /**
  * Parses and converts units string to normalized unit array.
  * Result is cached to speed up next calls.
@@ -154,13 +156,13 @@ var parsedUnitsCache = {};
  *
  */
 function parseUnits(units) {
-    var cached = parsedUnitsCache[units];
+    const cached = parsedUnitsCache[units];
     if (cached) {
         return cached;
     }
 
-    var unitMatch,
-        normalizedUnits = [];
+    let unitMatch;
+    let normalizedUnits = [];
 
     // Scan
     if (!UNIT_TEST_REGEX.test(units)) {
@@ -171,17 +173,17 @@ function parseUnits(units) {
         normalizedUnits.push(unitMatch.slice(1));
     }
 
-    normalizedUnits = normalizedUnits.map(function(item) {
+    normalizedUnits = normalizedUnits.map(item => {
         return PREFIX_MAP[item[0]]
             ? [PREFIX_MAP[item[0]], UNIT_MAP[item[1]]]
             : [UNIT_MAP[item[1]]];
     });
 
     // Flatten and remove null elements
-    normalizedUnits = normalizedUnits.reduce(function(a, b) {
+    normalizedUnits = normalizedUnits.reduce((a, b) => {
         return a.concat(b);
     }, []);
-    normalizedUnits = normalizedUnits.filter(function(item) {
+    normalizedUnits = normalizedUnits.filter(item => {
         return item;
     });
 

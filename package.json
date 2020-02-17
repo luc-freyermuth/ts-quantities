@@ -31,11 +31,13 @@
   "license": "MIT",
   "scripts": {
     "test": "jasmine-node spec/",
+    "lint": "tslint --project .",
     "build": "tsc -p .",
     "watch": "tsc -w -p ."
   },
   "devDependencies": {
     "jasmine-node": "^3.0.0",
+    "tslint": "^6.0.0",
     "typescript": "^3.7.5"
   }
 }

@@ -6,9 +6,9 @@ import { UnitSource } from './types.js';
 // returns true if no associated units
 // false, even if the units are "unitless" like 'radians, each, etc'
 export function isUnitless(this: Qty): boolean {
-    return [this.numerator, this.denominator].every(function(item) {
-        return compareArray(item, UNITY_ARRAY);
-    });
+    return [this.numerator, this.denominator].every(item =>
+        compareArray(item, UNITY_ARRAY)
+    );
 }
 
 /*

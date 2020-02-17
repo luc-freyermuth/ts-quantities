@@ -1,6 +1,7 @@
 import { UNITS } from './definitions.js';
+import { UnitDefinition } from './types.js';
 
-var SIGNATURE_VECTOR = [
+const SIGNATURE_VECTOR = [
     'length',
     'time',
     'temperature',
@@ -26,14 +27,12 @@ export function unitSignature() {
     if (this.signature) {
         return this.signature;
     }
-    var vector = unitSignatureVector.call(this);
-    for (var i = 0; i < vector.length; i++) {
+    const vector = unitSignatureVector.call(this);
+    for (let i = 0; i < vector.length; i++) {
         vector[i] *= Math.pow(20, i);
     }
 
-    return vector.reduce(function(previous, current) {
-        return previous + current;
-    }, 0);
+    return vector.reduce((previous, current) => previous + current, 0);
 }
 
 // calculates the unit signature vector used by unit_signature
@@ -42,13 +41,14 @@ function unitSignatureVector() {
         return unitSignatureVector.call(this.toBase());
     }
 
-    var vector = new Array(SIGNATURE_VECTOR.length);
-    for (var i = 0; i < vector.length; i++) {
+    const vector = new Array(SIGNATURE_VECTOR.length);
+    for (let i = 0; i < vector.length; i++) {
         vector[i] = 0;
     }
-    var r, n;
-    for (var j = 0; j < this.numerator.length; j++) {
-        if ((r = UNITS[this.numerator[j]])) {
+    let r: UnitDefinition;
+    let n: number;
+    for (const numeratorUnit of this.numerator) {
+        if ((r = UNITS[numeratorUnit])) {
             n = SIGNATURE_VECTOR.indexOf(r[2]);
             if (n >= 0) {
                 vector[n] = vector[n] + 1;
@@ -56,8 +56,8 @@ function unitSignatureVector() {
         }
     }
 
-    for (var k = 0; k < this.denominator.length; k++) {
-        if ((r = UNITS[this.denominator[k]])) {
+    for (const denominatorUnit of this.denominator) {
+        if ((r = UNITS[denominatorUnit])) {
             n = SIGNATURE_VECTOR.indexOf(r[2]);
             if (n >= 0) {
                 vector[n] = vector[n] - 1;

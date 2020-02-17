@@ -22,7 +22,8 @@ import { RegularObject, UnitSource, Source } from './types.js';
  * weight.to(Qty("3 g")); // => Qty("25000 g"); // scalar of passed Qty is ignored
  */
 export function to(this: Qty, other: UnitSource): Qty {
-    var cached, target;
+    let cached: Qty;
+    let target: Qty;
 
     if (other === undefined || other === null) {
         return this;
@@ -55,7 +56,7 @@ export function to(this: Qty, other: UnitSource): Qty {
         } else if (target.isDegrees()) {
             target = toDegrees(this, target);
         } else {
-            var q = divSafe(this.baseScalar, target.baseScalar);
+            const q = divSafe(this.baseScalar, target.baseScalar);
             target = new Qty({
                 scalar: q,
                 numerator: target.numerator,
@@ -133,7 +134,7 @@ export function toPrec(this: Qty, precQuantity: Source): Qty {
         throw new QtyError('Divide by zero');
     }
 
-    var precRoundedResult = mulSafe(
+    const precRoundedResult = mulSafe(
         Math.round(this.scalar / precQty.scalar),
         precQty.scalar
     );
@@ -164,20 +165,20 @@ export function toPrec(this: Qty, precQuantity: Source): Qty {
  *
  */
 export function swiftConverter(srcUnits: string, dstUnits: string) {
-    var srcQty = new Qty(srcUnits);
-    var dstQty = new Qty(dstUnits);
+    const srcQty = new Qty(srcUnits);
+    const dstQty = new Qty(dstUnits);
 
     if (srcQty.eq(dstQty)) {
         return identity;
     }
 
-    var convert: (value: number) => number;
+    let convert: (value: number) => number;
     if (!srcQty.isTemperature()) {
-        convert = function(value) {
+        convert = (value) => {
             return (value * srcQty.baseScalar) / dstQty.baseScalar;
         };
     } else {
-        convert = function(value) {
+        convert = (value) => {
             // TODO Not optimized
             return srcQty.mul(value).to(dstQty).scalar;
         };
@@ -198,12 +199,10 @@ export function swiftConverter(srcUnits: string, dstUnits: string) {
 const baseUnitCache: RegularObject<Qty> = {};
 
 function toBaseUnits(numerator: string[], denominator: string[]): Qty {
-    var num = [];
-    var den = [];
-    var q = 1;
-    var unit;
-    for (var i = 0; i < numerator.length; i++) {
-        unit = numerator[i];
+    const num = [];
+    const den = [];
+    let q = 1;
+    for (const unit of numerator) {
         if (PREFIX_VALUES[unit]) {
             // workaround to fix
             // 0.1 * 0.1 => 0.010000000000000002
@@ -221,8 +220,7 @@ function toBaseUnits(numerator: string[], denominator: string[]): Qty {
             }
         }
     }
-    for (var j = 0; j < denominator.length; j++) {
-        unit = denominator[j];
+    for (const unit of denominator) {
         if (PREFIX_VALUES[unit]) {
             q /= PREFIX_VALUES[unit];
         } else {
@@ -239,13 +237,9 @@ function toBaseUnits(numerator: string[], denominator: string[]): Qty {
         }
     }
 
-    // Flatten
-    num = num.reduce(function(a, b) {
+    const concat = (a, b) => {
         return a.concat(b);
-    }, []);
-    den = den.reduce(function(a, b) {
-        return a.concat(b);
-    }, []);
+    };
 
-    return new Qty({ scalar: q, numerator: num, denominator: den });
+    return new Qty({ scalar: q, numerator: num.reduce(concat, []), denominator: den.reduce(concat, []) });
 }

@@ -1,10 +1,8 @@
 import { isNumber } from './utils.js';
 import QtyError from './error.js';
-import { RegularObject, ScalarAndUnit } from './types.js';
+import { RegularObject, ScalarAndUnit, UnitDefinition } from './types.js';
 
-type UnitDefinition = [string[], number, string, string[]?, string[]?];
-
-export var UNITS: RegularObject<UnitDefinition> = {
+export const UNITS: RegularObject<UnitDefinition> = {
     /* prefixes */
     '<googol>': [['googol'], 1e100, 'prefix'],
     '<kibi>': [['Ki', 'Kibi', 'kibi'], Math.pow(2, 10), 'prefix'],
@@ -300,7 +298,7 @@ export var UNITS: RegularObject<UnitDefinition> = {
     '<decibel>': [['dB', 'decibel', 'decibels'], 1.0, 'logarithmic', ['<decibel>']]
 };
 
-export var BASE_UNITS: string[] = [
+export const BASE_UNITS: string[] = [
     '<meter>',
     '<kilogram>',
     '<second>',
@@ -317,8 +315,8 @@ export var BASE_UNITS: string[] = [
     '<decibel>'
 ];
 
-export var UNITY = '<1>';
-export var UNITY_ARRAY = [UNITY];
+export const UNITY = '<1>';
+export const UNITY_ARRAY = [UNITY];
 
 // Setup
 
@@ -332,36 +330,36 @@ export var UNITY_ARRAY = [UNITY];
  * @throws {QtyError} if unit definition is not valid
  */
 function validateUnitDefinition(unitDef: string, definition: UnitDefinition) {
-    const [,scalar,,numerator=[], denominator=[]] = definition;
+    const [, scalar, , numerator = [], denominator = []] = definition;
     if (!isNumber(scalar)) {
         throw new QtyError(unitDef + ': Invalid unit definition. ' + "'scalar' must be a number");
     }
 
-    numerator.forEach(function(unit) {
+    numerator.forEach(unit => {
         if (UNITS[unit] === undefined) {
             throw new QtyError(unitDef + ': Invalid unit definition. ' + 'Unit ' + unit + " in 'numerator' is not recognized");
         }
     });
 
-    denominator.forEach(function(unit) {
+    denominator.forEach(unit => {
         if (UNITS[unit] === undefined) {
             throw new QtyError(unitDef + ': Invalid unit definition. ' + 'Unit ' + unit + " in 'denominator' is not recognized");
         }
     });
 }
 
-export var PREFIX_VALUES: RegularObject<number> = {};
-export var PREFIX_MAP: RegularObject<string> = {};
-export var UNIT_VALUES: RegularObject<ScalarAndUnit> = {};
-export var UNIT_MAP: RegularObject<string> = {};
-export var OUTPUT_MAP: RegularObject<string> = {};
-for (var unitDef in UNITS) {
+export const PREFIX_VALUES: RegularObject<number> = {};
+export const PREFIX_MAP: RegularObject<string> = {};
+export const UNIT_VALUES: RegularObject<ScalarAndUnit> = {};
+export const UNIT_MAP: RegularObject<string> = {};
+export const OUTPUT_MAP: RegularObject<string> = {};
+for (const unitDef in UNITS) {
     if (UNITS.hasOwnProperty(unitDef)) {
-        var definition = UNITS[unitDef];
+        const definition = UNITS[unitDef];
         if (definition[2] === 'prefix') {
             PREFIX_VALUES[unitDef] = definition[1];
-            for (var i = 0; i < definition[0].length; i++) {
-                PREFIX_MAP[definition[0][i]] = unitDef;
+            for (const prefixAlternative of definition[0]) {
+                PREFIX_MAP[prefixAlternative] = unitDef;
             }
         } else {
             validateUnitDefinition(unitDef, definition);
@@ -370,8 +368,8 @@ for (var unitDef in UNITS) {
                 numerator: definition[3],
                 denominator: definition[4]
             };
-            for (var j = 0; j < definition[0].length; j++) {
-                UNIT_MAP[definition[0][j]] = unitDef;
+            for (const unitAlternative of definition[0]) {
+                UNIT_MAP[unitAlternative] = unitDef;
             }
         }
         OUTPUT_MAP[unitDef] = definition[0][0];
@@ -386,26 +384,25 @@ for (var unitDef in UNITS) {
  * @throws {QtyError} if kind is unknown
  */
 export function getUnits(kind?: string): string[] {
-    var i;
-    var units = [];
-    var unitKeys = Object.keys(UNITS);
+    const units = [];
+    const unitKeys = Object.keys(UNITS);
     if (typeof kind === 'undefined') {
-        for (i = 0; i < unitKeys.length; i++) {
-            if (['', 'prefix'].indexOf(UNITS[unitKeys[i]][2]) === -1) {
-                units.push(unitKeys[i].substr(1, unitKeys[i].length - 2));
+        for (const unitKey of unitKeys) {
+            if (['', 'prefix'].indexOf(UNITS[unitKey][2]) === -1) {
+                units.push(unitKey.substr(1, unitKey.length - 2));
             }
         }
     } else if (this.getKinds().indexOf(kind) === -1) {
         throw new QtyError('Kind not recognized');
     } else {
-        for (i = 0; i < unitKeys.length; i++) {
-            if (UNITS[unitKeys[i]][2] === kind) {
-                units.push(unitKeys[i].substr(1, unitKeys[i].length - 2));
+        for (const unitKey of unitKeys) {
+            if (UNITS[unitKey][2] === kind) {
+                units.push(unitKey.substr(1, unitKey.length - 2));
             }
         }
     }
 
-    return units.sort(function(a, b) {
+    return units.sort((a, b) => {
         if (a.toLowerCase() < b.toLowerCase()) {
             return -1;
         }

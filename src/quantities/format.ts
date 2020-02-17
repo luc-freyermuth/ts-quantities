@@ -19,20 +19,20 @@ export function defaultFormatter(scalar: number, units: string): string {
 }
 
 // returns the 'unit' part of the Unit object without the scalar
-export function units(this: Qty): string {
+export function getUnits(this: Qty): string {
     if (this._units !== undefined) {
         return this._units;
     }
 
-    var numIsUnity = compareArray(this.numerator, UNITY_ARRAY);
-    var denIsUnity = compareArray(this.denominator, UNITY_ARRAY);
+    const numIsUnity = compareArray(this.numerator, UNITY_ARRAY);
+    const denIsUnity = compareArray(this.denominator, UNITY_ARRAY);
     if (numIsUnity && denIsUnity) {
         this._units = '';
         return this._units;
     }
 
-    var numUnits = stringifyUnits(this.numerator);
-    var denUnits = stringifyUnits(this.denominator);
+    const numUnits = stringifyUnits(this.numerator);
+    const denUnits = stringifyUnits(this.denominator);
     this._units = numUnits + (denIsUnity ? '' : '/' + denUnits);
     return this._units;
 }
@@ -53,13 +53,17 @@ export function units(this: Qty): string {
  */
 export function toString(this: Qty, maxDecimals: number): string;
 export function toString(this: Qty, precQty: Qty, maxDecimals: number): string;
-export function toString(this: Qty, targetUnits: string, maxDecimals?: number): string;
+export function toString(
+    this: Qty,
+    targetUnits: string,
+    maxDecimals?: number
+): string;
 export function toString(
     this: Qty,
     targetUnitsOrMaxDecimalsOrPrec: Source,
     maxDecimals?: number
 ): string {
-    var targetUnits;
+    let targetUnits;
     if (isNumber(targetUnitsOrMaxDecimalsOrPrec)) {
         targetUnits = this.units();
         maxDecimals = targetUnitsOrMaxDecimalsOrPrec;
@@ -74,8 +78,10 @@ export function toString(
     const outQty = this.to(targetUnits);
     let out: string;
 
-    var outScalar =
-        maxDecimals !== undefined ? round(outQty.scalar, maxDecimals) : outQty.scalar;
+    const outScalar =
+        maxDecimals !== undefined
+            ? round(outQty.scalar, maxDecimals)
+            : outQty.scalar;
     out = (outScalar + ' ' + outQty.units()).trim();
     return out;
 }
@@ -107,7 +113,11 @@ export function toString(
  *
  * @returns {string} quantity as string
  */
-export function format(this: Qty, targetUnits?: string, formatter?: Formatter): string;
+export function format(
+    this: Qty,
+    targetUnits?: string,
+    formatter?: Formatter
+): string;
 export function format(this: Qty, formatter?: Formatter): string;
 export function format(
     this: Qty,
@@ -115,15 +125,15 @@ export function format(
     formatter?: Formatter
 ): string {
     if (typeof targetUnitsOrFormatter === 'function') {
-        return this.format(undefined, targetUnitsOrFormatter)
+        return this.format(undefined, targetUnitsOrFormatter);
     }
 
     formatter = formatter || Qty.formatter;
-    var targetQty = this.to(targetUnitsOrFormatter);
+    const targetQty = this.to(targetUnitsOrFormatter);
     return formatter.call(this, targetQty.scalar, targetQty.units());
 }
 
-var stringifiedUnitsCache = new NestedMap();
+const stringifiedUnitsCache = new NestedMap();
 /**
  * Returns a string representing a normalized unit array
  *
@@ -133,12 +143,12 @@ var stringifiedUnitsCache = new NestedMap();
  *
  */
 function stringifyUnits(units) {
-    var stringified = stringifiedUnitsCache.get(units);
+    let stringified = stringifiedUnitsCache.get(units);
     if (stringified) {
         return stringified;
     }
 
-    var isUnity = compareArray(units, UNITY_ARRAY);
+    const isUnity = compareArray(units, UNITY_ARRAY);
     if (isUnity) {
         stringified = '1';
     } else {
@@ -152,10 +162,10 @@ function stringifyUnits(units) {
 }
 
 function getOutputNames(units) {
-    var unitNames = [],
-        token,
-        tokenNext;
-    for (var i = 0; i < units.length; i++) {
+    const unitNames = [];
+    let token;
+    let tokenNext;
+    for (let i = 0; i < units.length; i++) {
         token = units[i];
         tokenNext = units[i + 1];
         if (PREFIX_VALUES[token]) {
@@ -171,8 +181,8 @@ function getOutputNames(units) {
 function simplify(units) {
     // this turns ['s','m','s'] into ['s2','m']
 
-    var unitCounts = units.reduce(function(acc, unit) {
-        var unitCounter = acc[unit];
+    const unitCounts = units.reduce((acc, unit) => {
+        let unitCounter = acc[unit];
         if (!unitCounter) {
             acc.push((unitCounter = acc[unit] = [unit, 0]));
         }
@@ -182,7 +192,7 @@ function simplify(units) {
         return acc;
     }, []);
 
-    return unitCounts.map(function(unitCount) {
+    return unitCounts.map(unitCount => {
         return unitCount[0] + (unitCount[1] > 1 ? unitCount[1] : '');
     });
 }
