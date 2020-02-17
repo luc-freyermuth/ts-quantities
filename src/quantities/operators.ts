@@ -1,4 +1,4 @@
-import { Qty, UnitSource, Source } from './constructor.js';
+import { Qty } from './constructor.js';
 import QtyError, { throwIncompatibleUnits } from './error.js';
 import { PREFIX_VALUES, UNITY, UNITY_ARRAY } from './definitions.js';
 import { isNumber, isString, mulSafe, divSafe } from './utils.js';
@@ -7,6 +7,7 @@ import {
     subtractTempDegrees,
     subtractTemperatures
 } from './temperature.js';
+import { UnitSource, Source } from './types.js';
 
 // Returns new instance with units of this
 export function add(this: Qty, other: UnitSource): Qty {
@@ -33,7 +34,7 @@ export function add(this: Qty, other: UnitSource): Qty {
     });
 }
 
-export function sub(this: Qty, other: UnitSource) {
+export function sub(this: Qty, other: UnitSource): Qty {
     if (isString(other)) {
         other = new Qty(other);
     }
@@ -59,7 +60,7 @@ export function sub(this: Qty, other: UnitSource) {
     });
 }
 
-export function mul(this: Qty, other: Source) {
+export function mul(this: Qty, other: Source): Qty {
     if (isNumber(other)) {
         return new Qty({
             scalar: mulSafe(this.scalar, other),
@@ -100,7 +101,7 @@ export function mul(this: Qty, other: Source) {
     });
 }
 
-export function div(this: Qty, other: Source) {
+export function div(this: Qty, other: Source): Qty {
     if (isNumber(other)) {
         if (other === 0) {
             throw new QtyError('Divide by zero');

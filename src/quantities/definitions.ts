@@ -1,7 +1,10 @@
 import { isNumber } from './utils.js';
 import QtyError from './error.js';
+import { RegularObject, ScalarAndUnit } from './types.js';
 
-export var UNITS = {
+type UnitDefinition = [string[], number, string, string[]?, string[]?];
+
+export var UNITS: RegularObject<UnitDefinition> = {
     /* prefixes */
     '<googol>': [['googol'], 1e100, 'prefix'],
     '<kibi>': [['Ki', 'Kibi', 'kibi'], Math.pow(2, 10), 'prefix'],
@@ -297,7 +300,7 @@ export var UNITS = {
     '<decibel>': [['dB', 'decibel', 'decibels'], 1.0, 'logarithmic', ['<decibel>']]
 };
 
-export var BASE_UNITS = [
+export var BASE_UNITS: string[] = [
     '<meter>',
     '<kilogram>',
     '<second>',
@@ -328,10 +331,8 @@ export var UNITY_ARRAY = [UNITY];
  * @returns {void}
  * @throws {QtyError} if unit definition is not valid
  */
-function validateUnitDefinition(unitDef, definition) {
-    var scalar = definition[1];
-    var numerator = definition[3] || [];
-    var denominator = definition[4] || [];
+function validateUnitDefinition(unitDef: string, definition: UnitDefinition) {
+    const [,scalar,,numerator=[], denominator=[]] = definition;
     if (!isNumber(scalar)) {
         throw new QtyError(unitDef + ': Invalid unit definition. ' + "'scalar' must be a number");
     }
@@ -349,11 +350,11 @@ function validateUnitDefinition(unitDef, definition) {
     });
 }
 
-export var PREFIX_VALUES = {};
-export var PREFIX_MAP = {};
-export var UNIT_VALUES = {};
-export var UNIT_MAP = {};
-export var OUTPUT_MAP = {};
+export var PREFIX_VALUES: RegularObject<number> = {};
+export var PREFIX_MAP: RegularObject<string> = {};
+export var UNIT_VALUES: RegularObject<ScalarAndUnit> = {};
+export var UNIT_MAP: RegularObject<string> = {};
+export var OUTPUT_MAP: RegularObject<string> = {};
 for (var unitDef in UNITS) {
     if (UNITS.hasOwnProperty(unitDef)) {
         var definition = UNITS[unitDef];
@@ -384,7 +385,7 @@ for (var unitDef in UNITS) {
  * @returns {array} names of units
  * @throws {QtyError} if kind is unknown
  */
-export function getUnits(kind) {
+export function getUnits(kind?: string): string[] {
     var i;
     var units = [];
     var unitKeys = Object.keys(UNITS);

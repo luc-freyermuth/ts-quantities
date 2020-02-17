@@ -1,7 +1,8 @@
 import { Qty } from './constructor.js';
 import { uniq } from './utils.js';
+import { RegularObject } from './types.js';
 
-var KINDS: { [key: string]: string } = {
+var KINDS: RegularObject<string> = {
     '-312078': 'elastance',
     '-312058': 'resistance',
     '-312038': 'inductance',

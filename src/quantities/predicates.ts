@@ -1,6 +1,7 @@
-import { Qty, isQty, UnitSource } from './constructor.js';
+import { Qty, isQty } from './constructor.js';
 import { BASE_UNITS, UNITY, UNITY_ARRAY } from './definitions.js';
 import { compareArray, isString } from './utils.js';
+import { UnitSource } from './types.js';
 
 // returns true if no associated units
 // false, even if the units are "unitless" like 'radians, each, etc'

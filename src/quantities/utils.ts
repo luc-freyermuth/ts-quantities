@@ -94,7 +94,7 @@ export function mulSafe(...args: number[]): number {
  * @param {number} num Numerator
  * @param {number} den Denominator
  */
-export function divSafe(num, den) {
+export function divSafe(num: number, den: number) {
     if (den === 0) {
         throw new Error('Divide by zero');
     }

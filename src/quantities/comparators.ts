@@ -1,6 +1,7 @@
-import { Qty, UnitSource } from './constructor';
+import { Qty } from './constructor';
 import { isString } from './utils';
 import { throwIncompatibleUnits } from './error';
+import { UnitSource } from './types';
 
 export function eq(this: Qty, other: UnitSource) {
     return this.compareTo(other) === 0;

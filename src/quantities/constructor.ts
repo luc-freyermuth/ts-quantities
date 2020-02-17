@@ -13,10 +13,7 @@ import * as kind from './kind';
 import * as definitions from './definitions';
 import * as parse from './parse';
 import * as utils from './utils';
-
-export type UnitSource = Qty | string;
-export type Source = UnitSource | number;
-export type QtyObjects = { [key: string]: Qty };
+import { RegularObject } from './types';
 
 /**
  * Tests if a value is a Qty instance
@@ -38,7 +35,7 @@ export class Qty {
     readonly initValue: string;
     
     protected signature = null;
-    protected _conversionCache: QtyObjects = {};
+    protected _conversionCache: RegularObject<Qty> = {};
     protected _units: any;
     protected _isBase: boolean;
 

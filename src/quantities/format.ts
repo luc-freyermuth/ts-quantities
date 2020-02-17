@@ -1,7 +1,8 @@
-import { Qty, isQty, Source } from './constructor.js';
+import { Qty, isQty } from './constructor.js';
 import { PREFIX_VALUES, OUTPUT_MAP, UNITY_ARRAY } from './definitions.js';
 import { compareArray, isNumber, isString, round } from './utils.js';
 import NestedMap from './nested-map.js';
+import { Source } from './types.js';
 
 export type Formatter = typeof defaultFormatter;
 

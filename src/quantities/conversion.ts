@@ -1,8 +1,9 @@
-import { Qty, UnitSource, QtyObjects, Source } from './constructor.js';
+import { Qty } from './constructor.js';
 import { PREFIX_VALUES, UNIT_VALUES } from './definitions.js';
 import { toDegrees, toTemp, toTempK } from './temperature.js';
 import { divSafe, identity, isNumber, isString, mulSafe } from './utils.js';
 import QtyError, { throwIncompatibleUnits } from './error.js';
+import { RegularObject, UnitSource, Source } from './types.js';
 
 /**
  * Converts to other compatible units.
@@ -194,7 +195,7 @@ export function swiftConverter(srcUnits: string, dstUnits: string) {
     return converter;
 }
 
-const baseUnitCache: QtyObjects = {};
+const baseUnitCache: RegularObject<Qty> = {};
 
 function toBaseUnits(numerator: string[], denominator: string[]): Qty {
     var num = [];

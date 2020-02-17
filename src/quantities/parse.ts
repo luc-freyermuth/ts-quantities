@@ -196,7 +196,7 @@ function parseUnits(units) {
  * @throws if value is not a string
  * @returns {Qty|null} Parsed quantity or null if unrecognized
  */
-export function globalParse(value) {
+export function globalParse(value: string): Qty {
     if (!isString(value)) {
         throw new QtyError('Argument should be a string');
     }
