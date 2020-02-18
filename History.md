@@ -1,3 +1,13 @@
+2.1.1 / 2020-02-18
+------------------
+
+* Update forked documentation to comply to typescript.
+
+2.1.0 / 2020-02-18
+------------------
+
+* New member function `convertSingleUnit`.
+
 2.0.0 / 2020-02-16
 ------------------
 
