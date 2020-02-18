@@ -1,7 +1,7 @@
 import { Qty } from './constructor.js';
-import { PREFIX_VALUES, UNIT_VALUES } from './definitions.js';
+import { PREFIX_VALUES, UNIT_VALUES, UNITY_ARRAY } from './definitions.js';
 import { toDegrees, toTemp, toTempK } from './temperature.js';
-import { divSafe, identity, isNumber, isString, mulSafe } from './utils.js';
+import { divSafe, identity, isNumber, isString, mulSafe, compareArray } from './utils.js';
 import QtyError, { throwIncompatibleUnits } from './error.js';
 import { RegularObject, UnitSource, Source } from './types.js';
 
@@ -96,6 +96,49 @@ export function toFloat(this: Qty): number {
     throw new QtyError(
         "Can't convert to Float unless unitless.  Use Unit#scalar"
     );
+}
+
+export function convertSingleUnit(this: Qty, baseUnit: UnitSource, targetUnit: UnitSource): Qty {
+    if (isString(baseUnit)) {
+        return this.convertSingleUnit(new Qty(baseUnit), targetUnit);
+    }
+    if (isString(targetUnit)) {
+        return this.convertSingleUnit(baseUnit, new Qty(targetUnit));
+    }
+    if (!compareArray(baseUnit.denominator, UNITY_ARRAY) || !compareArray(targetUnit.denominator, UNITY_ARRAY)) {
+        throw new QtyError('Units should have no denominator for a single unit conversion');
+    }
+    // TODO Check if base and target are single units with (optionally) a prefix
+
+    const conversionFactor = baseUnit.to(targetUnit).scalar;
+
+    let scalar = this.scalar;
+    const numerator = [...this.numerator];
+    const denominator = [...this.denominator];
+
+    let foundIndex;
+    while ((foundIndex = findUnitWithPrefixInList(baseUnit.numerator, numerator)) > -1) {
+        numerator.splice(foundIndex, baseUnit.numerator.length, ...targetUnit.numerator);
+        scalar *= conversionFactor;
+    }
+    while ((foundIndex = findUnitWithPrefixInList(baseUnit.numerator, denominator)) > -1) {
+        denominator.splice(foundIndex, baseUnit.numerator.length, ...targetUnit.numerator);
+        scalar /= conversionFactor;
+    }
+    return new Qty({
+        scalar,
+        numerator,
+        denominator
+    });
+}
+
+function findUnitWithPrefixInList(unit: string[], list: string[]) {
+    for (let i = 0; i < list.length - unit.length + 1; i++) {
+        if (compareArray(unit, list.slice(i, i + unit.length))) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /**
