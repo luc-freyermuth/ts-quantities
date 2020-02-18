@@ -1,7 +1,15 @@
 import { Qty } from './constructor.js';
-import { PREFIX_VALUES, UNIT_VALUES, UNITY_ARRAY } from './definitions.js';
+import { PREFIX_VALUES, UNIT_VALUES, UNITY_ARRAY, isPrefix } from './definitions.js';
 import { toDegrees, toTemp, toTempK } from './temperature.js';
-import { divSafe, identity, isNumber, isString, mulSafe, compareArray, findUnitWithPrefixInList } from './utils.js';
+import {
+    divSafe,
+    identity,
+    isNumber,
+    isString,
+    mulSafe,
+    compareArray,
+    findUnitWithPrefixInList
+} from './utils.js';
 import QtyError, { throwIncompatibleUnits } from './error.js';
 import { RegularObject, UnitSource, Source } from './types.js';
 
@@ -109,7 +117,14 @@ export function convertSingleUnit(this: Qty, baseUnit: UnitSource, targetUnit: U
     ) {
         throw new QtyError('Units should have no denominator for a single unit conversion');
     }
-    // TODO Check if base and target are single units with (optionally) a prefix
+
+    const checkIfSingleUnitWithOptionnalPrefix = (units: string[]): boolean => {
+        return (units.length === 1 && !isPrefix(units[0])) || (units.length === 2 && isPrefix(units[0]) && !isPrefix(units[1]));
+    }
+
+    if (!checkIfSingleUnitWithOptionnalPrefix(baseUnit.numerator)) {
+        throw new QtyError('Numerator units should be a single unit with an (optional) prefix');
+    }
 
     const conversionFactor = baseUnit.to(targetUnit).scalar;
 
