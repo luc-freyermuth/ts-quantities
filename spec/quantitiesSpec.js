@@ -1535,4 +1535,45 @@ describe("js-quantities", function() {
       });
     });
   });
+
+  describe("convertSingleUnit", function() {
+    it("should convert simple units", function() {
+      let qty = new Qty('10 kWh');
+      expect(qty.convertSingleUnit('kWh', 'MWh').scalar).toEqual(0.01);
+      expect(qty.convertSingleUnit('kWh', 'Wh').scalar).toEqual(10000);
+      expect(qty.convertSingleUnit('kWh', 'MWh').units()).toEqual('MWh');
+      qty = new Qty('1.68784e-4 m');
+      expect(qty.convertSingleUnit('m', 'dm').scalar).toEqual(1.68784e-3);
+      expect(qty.convertSingleUnit('m', 'km').scalar).toEqual(1.68784e-7);
+    });
+
+    it("should convert advanced units", function() {
+      let qty = new Qty('42 m/s');
+      expect(qty.convertSingleUnit('m', 'km').scalar).toEqual(0.042);
+      expect(qty.convertSingleUnit('m', 'km').units()).toEqual('km/s');
+
+      expect(qty.convertSingleUnit('s', 'h').scalar).toEqual(151200);
+      expect(qty.convertSingleUnit('s', 'h').units()).toEqual('m/h');
+    });
+
+    it("should error if units are incompatible", function() {
+      let qty = new Qty(1337, 'N');
+      expect(() => {
+        qty.convertSingleUnit('N', 'm');
+      }).toThrow();
+      expect(() => {
+        qty.convertSingleUnit('A', 'J');
+      }).toThrow();
+    });
+
+    it("should error if units are not simple", function() {
+      let qty = new Qty(1664, 'm/s');
+      expect(() => {
+        qty.convertSingleUnit('m/s', 'km/h');
+      }).toThrow();
+      expect(() => {
+        qty.convertSingleUnit('USD/kWh', 'USD/MWh');
+      }).toThrow();
+    });
+  });
 });

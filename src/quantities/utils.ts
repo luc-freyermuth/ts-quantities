@@ -1,3 +1,5 @@
+import { PREFIX_VALUES, isPrefix } from "./definitions";
+
 /**
  * Tests if a value is a string
  *
@@ -130,4 +132,16 @@ function getFractional(num) {
         count++;
     }
     return count;
+}
+
+export function findUnitWithPrefixInList(unit: string[], list: string[]) {
+    for (let i = 0; i < list.length - unit.length + 1; i++) {
+        if (
+            compareArray(unit, list.slice(i, i + unit.length)) &&
+            (unit.length !== 1 || i === 0 || !isPrefix(list[i - 1])) // prevents interpretating prefix + unit for unit
+        ) {
+            return i;
+        }
+    }
+    return -1;
 }

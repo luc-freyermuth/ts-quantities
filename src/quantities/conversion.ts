@@ -1,7 +1,15 @@
 import { Qty } from './constructor.js';
-import { PREFIX_VALUES, UNIT_VALUES } from './definitions.js';
+import { PREFIX_VALUES, UNIT_VALUES, UNITY_ARRAY, isPrefix } from './definitions.js';
 import { toDegrees, toTemp, toTempK } from './temperature.js';
-import { divSafe, identity, isNumber, isString, mulSafe } from './utils.js';
+import {
+    divSafe,
+    identity,
+    isNumber,
+    isString,
+    mulSafe,
+    compareArray,
+    findUnitWithPrefixInList
+} from './utils.js';
 import QtyError, { throwIncompatibleUnits } from './error.js';
 import { RegularObject, UnitSource, Source } from './types.js';
 
@@ -93,9 +101,52 @@ export function toFloat(this: Qty): number {
     if (this.isUnitless()) {
         return this.scalar;
     }
-    throw new QtyError(
-        "Can't convert to Float unless unitless.  Use Unit#scalar"
-    );
+    throw new QtyError("Can't convert to Float unless unitless.  Use Unit#scalar");
+}
+
+export function convertSingleUnit(this: Qty, baseUnit: UnitSource, targetUnit: UnitSource): Qty {
+    if (isString(baseUnit)) {
+        return this.convertSingleUnit(new Qty(baseUnit), targetUnit);
+    }
+    if (isString(targetUnit)) {
+        return this.convertSingleUnit(baseUnit, new Qty(targetUnit));
+    }
+    if (
+        !compareArray(baseUnit.denominator, UNITY_ARRAY) ||
+        !compareArray(targetUnit.denominator, UNITY_ARRAY)
+    ) {
+        throw new QtyError('Units should have no denominator for a single unit conversion');
+    }
+
+    const checkIfSingleUnitWithOptionnalPrefix = (units: string[]): boolean => {
+        return (units.length === 1 && !isPrefix(units[0])) || (units.length === 2 && isPrefix(units[0]) && !isPrefix(units[1]));
+    }
+
+    if (!checkIfSingleUnitWithOptionnalPrefix(baseUnit.numerator)) {
+        throw new QtyError('Numerator units should be a single unit with an (optional) prefix');
+    }
+
+    const conversionFactor = baseUnit.to(targetUnit).scalar;
+    const invertedConversionFactor = targetUnit.to(baseUnit).scalar;
+
+    let scalar = this.scalar;
+    const numerator = [...this.numerator];
+    const denominator = [...this.denominator];
+
+    let foundIndex;
+    while ((foundIndex = findUnitWithPrefixInList(baseUnit.numerator, numerator)) > -1) {
+        numerator.splice(foundIndex, baseUnit.numerator.length, ...targetUnit.numerator);
+        scalar = mulSafe(scalar, conversionFactor);
+    }
+    while ((foundIndex = findUnitWithPrefixInList(baseUnit.numerator, denominator)) > -1) {
+        denominator.splice(foundIndex, baseUnit.numerator.length, ...targetUnit.numerator);
+        scalar = mulSafe(scalar, invertedConversionFactor);
+    }
+    return new Qty({
+        scalar,
+        numerator,
+        denominator
+    });
 }
 
 /**
@@ -134,10 +185,7 @@ export function toPrec(this: Qty, precQuantity: Source): Qty {
         throw new QtyError('Divide by zero');
     }
 
-    const precRoundedResult = mulSafe(
-        Math.round(this.scalar / precQty.scalar),
-        precQty.scalar
-    );
+    const precRoundedResult = mulSafe(Math.round(this.scalar / precQty.scalar), precQty.scalar);
 
     return new Qty(precRoundedResult + this.units());
 }
@@ -174,11 +222,11 @@ export function swiftConverter(srcUnits: string, dstUnits: string) {
 
     let convert: (value: number) => number;
     if (!srcQty.isTemperature()) {
-        convert = (value) => {
+        convert = value => {
             return (value * srcQty.baseScalar) / dstQty.baseScalar;
         };
     } else {
-        convert = (value) => {
+        convert = value => {
             // TODO Not optimized
             return srcQty.mul(value).to(dstQty).scalar;
         };
@@ -241,5 +289,9 @@ function toBaseUnits(numerator: string[], denominator: string[]): Qty {
         return a.concat(b);
     };
 
-    return new Qty({ scalar: q, numerator: num.reduce(concat, []), denominator: den.reduce(concat, []) });
+    return new Qty({
+        scalar: q,
+        numerator: num.reduce(concat, []),
+        denominator: den.reduce(concat, [])
+    });
 }

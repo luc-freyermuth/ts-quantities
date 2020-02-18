@@ -99,6 +99,7 @@ export class Qty {
     toBase = conversion.toBase;
     toFloat = conversion.toFloat;
     toPrec = conversion.toPrec;
+    convertSingleUnit = conversion.convertSingleUnit;
 
     isDegrees = temperature.isDegrees;
     isTemperature = temperature.isTemperature;
