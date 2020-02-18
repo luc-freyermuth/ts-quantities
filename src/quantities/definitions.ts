@@ -420,7 +420,7 @@ export function getUnits(kind?: string): string[] {
  * @returns {string[]} aliases for unit
  * @throws {QtyError} if unit is unknown
  */
-export function getAliases(unitName: string) {
+export function getAliases(unitName: string): string[] {
     if (!UNIT_MAP[unitName]) {
         throw new QtyError('Unit not recognized');
     }

@@ -51,7 +51,7 @@ export function getUnits(this: Qty): string {
  *
  * @returns {string} reparseable quantity as string
  */
-export function toString(this: Qty, maxDecimals: number): string;
+export function toString(this: Qty, maxDecimals?: number): string;
 export function toString(this: Qty, precQty: Qty, maxDecimals: number): string;
 export function toString(
     this: Qty,
