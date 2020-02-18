@@ -127,6 +127,7 @@ export function convertSingleUnit(this: Qty, baseUnit: UnitSource, targetUnit: U
     }
 
     const conversionFactor = baseUnit.to(targetUnit).scalar;
+    const invertedConversionFactor = targetUnit.to(baseUnit).scalar;
 
     let scalar = this.scalar;
     const numerator = [...this.numerator];
@@ -135,11 +136,11 @@ export function convertSingleUnit(this: Qty, baseUnit: UnitSource, targetUnit: U
     let foundIndex;
     while ((foundIndex = findUnitWithPrefixInList(baseUnit.numerator, numerator)) > -1) {
         numerator.splice(foundIndex, baseUnit.numerator.length, ...targetUnit.numerator);
-        scalar *= conversionFactor;
+        scalar = mulSafe(scalar, conversionFactor);
     }
     while ((foundIndex = findUnitWithPrefixInList(baseUnit.numerator, denominator)) > -1) {
         denominator.splice(foundIndex, baseUnit.numerator.length, ...targetUnit.numerator);
-        scalar /= conversionFactor;
+        scalar = mulSafe(scalar, invertedConversionFactor);
     }
     return new Qty({
         scalar,
