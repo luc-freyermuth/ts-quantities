@@ -137,10 +137,15 @@ qty.inverse(); // converts quantity to its inverse
                // ('100 m/s' => '0.01 s/m')
 // Inverses can be used, but there is no special checking to
 // rename the units
-Qty('10ohm').inverse() // '0.1/ohm'
+new Qty('10ohm').inverse(); // '0.1/ohm'
                        // (not '0.1S', although they are equivalent)
 // however, the 'to' command will convert between inverses also
-Qty('10ohm').to('S') // '0.1S'
+new Qty('10ohm').to('S'); // '0.1S'
+
+public convertSingleUnit(baseUnit: string, targetUnit: string): Qty
+// Converts the selected baseUnit into the target unit. Others units remain untouched.
+new Qty('0.14 USD/kWh').convertSingleUnit('kWh', 'MWh'); // 140 USD/MWh
+new Qty('4000 m2').convertSingleUnit('m', 'km'); // 0.004 km2
 ```
 
 ### Mass conversion
@@ -393,6 +398,7 @@ Tests are implemented with Jasmine (https://github.com/pivotal/jasmine).
 To execute specs through `jasmine-node`, launch:
 
 ```
+npm install -g jasmine-node
 npm run test
 ```
 
