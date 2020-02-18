@@ -149,7 +149,7 @@ Qty('10ohm').to('S') // '0.1S'
 Number values. It configures a function accepting a value or an array of Number
 values to convert.
 
-```javascript
+```typescript
 static swiftConverter(srcUnits: string, dstUnits: string): (value: number | number[]) => number | number[]
 
 const convert = Qty.swiftConverter('m/h', 'ft/s'); // Configures converter
@@ -235,7 +235,9 @@ qty.toPrec('0.1 bar'); // => 1.15 MPa
 `Qty#toString` returns a string using the canonical form of the quantity (that
 is it could be seamlessly reparsed by `Qty`).
 
-```javascript
+```typescript
+public toString(toUnits?: string): string
+
 var qty = new Qty('1.146 MPa');
 qty.toString(); // => '1.146 MPa'
 ```
@@ -243,8 +245,8 @@ qty.toString(); // => '1.146 MPa'
 As a shorthand, units could be passed to `Qty#toString` and is equivalent to
 successively call `Qty#to` then `Qty#toString`.
 
-```javascript
-var qty = new Qty('1.146 MPa');
+```typescript
+const qty = new Qty('1.146 MPa');
 qty.toString('bar'); // => '11.46 bar'
 qty.to('bar').toString(); // => '11.46 bar'
 ```
@@ -253,8 +255,8 @@ qty.to('bar').toString(); // => '11.46 bar'
 of formatting. For instance, one could use `Qty#toPrec` to fix the maximum
 number of decimals:
 
-```javascript
-var qty = new Qty('1.146 MPa');
+```typescript
+const qty = new Qty('1.146 MPa');
 qty.toPrec(0.1).toString(); // => '1.1 MPa'
 qty.to('bar').toPrec(0.1).toString(); // => '11.5 bar'
 ```
@@ -268,9 +270,15 @@ Such a string is not intended to be reparsed to construct a new instance of
 `Qty` (unlike output of `Qty#toString`).
 
 If no formatter is specified, quantities are formatted according to default
-js-quantities' formatter and is equivalent to `Qty#toString`.
+ts-quantities' formatter and is equivalent to `Qty#toString`.
 
-```javascript
+```typescript
+type Formatter = (scalar: number, units: string) => string;
+public format(formatter?: Formatter): string;
+public format(targetUnits?: string, formatter?: Formatter): string;
+```
+
+```typescript
 var qty = new Qty('1.1234 m');
 qty.format(); // same units, default formatter => '1.234 m'
 qty.format('cm'); // converted to 'cm', default formatter => '123.45 cm'
@@ -280,17 +288,16 @@ qty.format('cm'); // converted to 'cm', default formatter => '123.45 cm'
 formatter is a callback function accepting scalar and units as parameters and
 returning a formatted string representing the quantity.
 
-```javascript
-var configurableRoundingFormatter = function(maxDecimals) {
-  return function(scalar, units) {
-    var pow = Math.pow(10, maxDecimals);
-    var rounded = Math.round(scalar * pow) / pow;
-
+```typescript
+const configurableRoundingFormatter = (maxDecimals: number): Formatter => {
+  return (scalar: number, units: string): string => {
+    const pow = Math.pow(10, maxDecimals);
+    const rounded = Math.round(scalar * pow) / pow;
     return rounded + ' ' + units;
   };
 };
 
-var qty = new Qty('1.1234 m');
+const qty = new Qty('1.1234 m');
 
 // same units, custom formatter => '1.12 m'
 qty.format(configurableRoundingFormatter(2));
@@ -301,15 +308,17 @@ qty.format('cm', configurableRoundingFormatter(1));
 
 Custom formatter can be configured globally by setting `Qty.formatter`.
 
-```javascript
+```typescript
+static formatter: Formatter;
+
 Qty.formatter = configurableRoundingFormatter(2);
-var qty = new Qty('1.1234 m');
+const qty = new Qty('1.1234 m');
 qty.format(); // same units, current default formatter => '1.12 m'
 ```
 
 ### Temperatures
 
-Like ruby-units, JS-quantities makes a distinction between a temperature (which
+Like ruby-units, ts-quantities makes a distinction between a temperature (which
 technically is a property) and degrees of temperature (which temperatures are
 measured in).
 
@@ -317,58 +326,58 @@ Temperature units (i.e., 'tempK') can be converted back and forth, and will take
 into account the differences in the zero points of the various scales.
 Differential temperature (e.g., '100 degC') units behave like most other units.
 
-```javascript
-Qty('37 tempC').to('tempF') // => 98.6 tempF
+```typescript
+new Qty('37 tempC').to('tempF') // => 98.6 tempF
 ```
 
-JS-quantities will throw an error if you attempt to create a temperature unit
+ts-quantities will throw an error if you attempt to create a temperature unit
 that would fall below absolute zero.
 
 Unit math on temperatures is fairly limited.
 
-```javascript
-Qty('100 tempC').add('10 degC')  // 110 tempC
-Qty('100 tempC').sub('10 degC')  // 90 tempC
-Qty('100 tempC').add('50 tempC') // throws error
-Qty('100 tempC').sub('50 tempC') // 50 degC
-Qty('50 tempC').sub('100 tempC') // -50 degC
-Qty('100 tempC').mul(scalar)     // 100*scalar tempC
-Qty('100 tempC').div(scalar)     // 100/scalar tempC
-Qty('100 tempC').mul(qty)        // throws error
-Qty('100 tempC').div(qty)        // throws error
-Qty('100 tempC*unit')            // throws error
-Qty('100 tempC/unit')            // throws error
-Qty('100 unit/tempC')            // throws error
-Qty('100 tempC').inverse()       // throws error
+```typescript
+new Qty('100 tempC').add('10 degC')  // 110 tempC
+new Qty('100 tempC').sub('10 degC')  // 90 tempC
+new Qty('100 tempC').add('50 tempC') // throws error
+new Qty('100 tempC').sub('50 tempC') // 50 degC
+new Qty('50 tempC').sub('100 tempC') // -50 degC
+new Qty('100 tempC').mul(scalar)     // 100*scalar tempC
+new Qty('100 tempC').div(scalar)     // 100/scalar tempC
+new Qty('100 tempC').mul(qty)        // throws error
+new Qty('100 tempC').div(qty)        // throws error
+new Qty('100 tempC*unit')            // throws error
+new Qty('100 tempC/unit')            // throws error
+new Qty('100 unit/tempC')            // throws error
+new Qty('100 tempC').inverse()       // throws error
 ```
 
-```javascript
-Qty('100 tempC').to('degC') // => 100 degC
+```typescript
+new Qty('100 tempC').to('degC') // => 100 degC
 ```
 
 This conversion references the 0 point on the scale of the temperature unit
 
-```javascript
-Qty('100 degC').to('tempC') // => -173.15 tempC
+```typescript
+new Qty('100 degC').to('tempC') // => -173.15 tempC
 ```
 
 These conversions are always interpreted as being relative to absolute zero.
 Conversions are probably better done like this...
 
-```javascript
-Qty('0 tempC').add('100 degC') // => 100 tempC
+```typescript
+new Qty('0 tempC').add('100 degC') // => 100 tempC
 ```
 
 ### Errors
 
-Every error thrown by JS-quantities is an instance of `Qty.Error`.
+Every error thrown by ts-quantities is an instance of `Qty.Error`.
 
-```javascript
+```typescript
 try {
-  // code triggering an error inside JS-quantities
+  // code triggering an error inside ts-quantities
 }
-catch(e) {
-  if(e instanceof Qty.Error) {
+catch(error) {
+  if(error instanceof Qty.Error) {
     // ...
   }
   else {
@@ -380,40 +389,16 @@ catch(e) {
 ## Tests
 
 Tests are implemented with Jasmine (https://github.com/pivotal/jasmine).
-You could use both HTML and jasmine-node runners.
-
-To execute specs through HTML runner, just open `SpecRunner.html` file in a
-browser to execute them.
 
 To execute specs through `jasmine-node`, launch:
 
-    make test
-
-### Performance regression test
-
-There is a small benchmarking HTML page to spot performance regression between
-currently checked-out quantities.js and any committed version.
-Just execute:
-
-    make bench
-
-then open http://0.0.0.0:3000/bench
-
-Checked-out version is benchmarked against HEAD by default but it could be changed by passing
-any commit SHA on the command line. Port (default 3000) is also configurable.
-
-    make bench COMMIT=e0c7fc468 PORT=5000
-
-## TypeScript type declarations
-
-A TypeScript declaration file is published on
-[DefinitelyTyped](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/js-quantities).
-
-It could be installed with `npm install @types/js-quantities`.
+```
+npm run test
+```
 
 ## Contribute
 
 Feedback and contributions are welcomed.
 
-Pull requests must pass tests and linting. Please make sure that `make test`
-and `make lint` return no errors before submitting.
+Pull requests must pass tests and linting. Please make sure that `npm run test`
+and `npm run lint` return no errors before submitting.
