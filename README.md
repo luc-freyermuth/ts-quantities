@@ -102,50 +102,62 @@ Qty.getAliases('m'); // => [ 'm', 'meter', 'meters', 'metre', 'metres' ]
 
 ### Quantity compatibility, kind and various queries
 
-```javascript
+```typescript
+public isCompatible(other: Qty | string): boolean
 qty1.isCompatible(qty2); // => true or false
 
+public kind(): string
 qty.kind(); // => 'length', 'area', etc...
 
+public isUnitless(): boolean
 qty.isUnitless(); // => true or false
+
+public isBase(): boolean
 qty.isBase(); // => true if quantity is represented with base units
 ```
 
 ### Conversion
 
-```javascript
+```typescript
+public toBase(): Qty
 qty.toBase(); // converts to SI units (10 cm => 0.1 m) (new instance)
 
+public toFloat(): number
 qty.toFloat(); // returns scalar of unitless quantity
                // (otherwise throws error)
 
+public to(Qty | string): Qty
 qty.to('m'); // converts quantity to meter if compatible
              // or throws an error (new instance)
 qty1.to(qty2); // converts quantity to same unit of qty2 if compatible
                // or throws an error (new instance)
 
+public inverse(): Qty
 qty.inverse(); // converts quantity to its inverse
-               // ('100 m/s' => '.01 s/m')
+               // ('100 m/s' => '0.01 s/m')
 // Inverses can be used, but there is no special checking to
 // rename the units
-Qty('10ohm').inverse() // '.1/ohm'
-                       // (not '.1S', although they are equivalent)
+Qty('10ohm').inverse() // '0.1/ohm'
+                       // (not '0.1S', although they are equivalent)
 // however, the 'to' command will convert between inverses also
-Qty('10ohm').to('S') // '.1S'
+Qty('10ohm').to('S') // '0.1S'
 ```
+
+### Mass conversion
 
 `Qty.swiftConverter()` is a fast way to efficiently convert large array of
 Number values. It configures a function accepting a value or an array of Number
 values to convert.
 
 ```javascript
-var convert = Qty.swiftConverter('m/h', 'ft/s'); // Configures converter
+static swiftConverter(srcUnits: string, dstUnits: string): (value: number | number[]) => number | number[]
+
+const convert = Qty.swiftConverter('m/h', 'ft/s'); // Configures converter
 
 // Converting single value
-var converted = convert(2500); // => 2.278..
-
+const converted = convert(2500); // => 2.278..
 // Converting large array of values
-var convertedSerie = convert([2500, 5000, ...]); // => [2.278.., 4.556.., ...]
+const convertedArray = convert([2500, 5000, ...]); // => [2.278.., 4.556.., ...]
 ```
 
 The main drawback of this conversion method is that it does not take care of
@@ -153,14 +165,26 @@ rounding issues.
 
 ### Comparison
 
-```javascript
+```typescript
+public eq(other: Qty): boolean
 qty1.eq(qty2); // => true if both quantities are equal (1m == 100cm => true)
+
+public same(other: Qty): boolean
 qty1.same(qty2); // => true if both quantities are same (1m == 100cm => false)
+
+public lt(other: Qty): boolean
 qty1.lt(qty2); // => true if qty1 is stricty less than qty2
+
+public lte(other: Qty): boolean
 qty1.lte(qty2); // => true if qty1 is less than or equal to qty2
+
+public gt(other: Qty): boolean
 qty1.gt(qty2); // => true if qty1 is stricty greater than qty2
+
+public gte(other: Qty): boolean
 qty1.gte(qty2); // => true if qty1 is greater than or equal to qty2
 
+public compareTo(other: Qty): number
 qty1.compareTo(qty2); // => -1 if qty1 < qty2,
                       // => 0 if qty1 == qty2,
                       // => 1 if qty1 > qty2
@@ -168,18 +192,22 @@ qty1.compareTo(qty2); // => -1 if qty1 < qty2,
 
 ### Operators
 
-* add(other): Add. other can be string or quantity. other should be unit compatible.
-* sub(other): Substract. other can be string or quantity. other should be unit compatible.
-* mul(other): Multiply. other can be string, number or quantity.
-* div(other): Divide. other can be string, number or quantity.
+```typescript
+public add(other: Qty | string | number): Qty // other should be unit compatible.
+public sub(other: Qty | string | number): Qty // other should be unit compatible.
+public mul(other: Qty | string | number): Qty
+public div(other: Qty | string | number): Qty
+```
 
 ### Rounding
 
 `Qty#toPrec(precision)` : returns the nearest multiple of quantity passed as
 precision.
 
-```javascript
-var qty = new Qty('5.17 ft');
+```typescript
+public toPrec(precQuantity: Qty | string | number): Qty
+
+const qty = new Qty('5.17 ft');
 qty.toPrec('ft'); // => 5 ft
 qty.toPrec('0.5 ft'); // => 5 ft
 qty.toPrec('0.25 ft'); // => 5.25 ft
@@ -190,7 +218,7 @@ qty.toPrec('0.00001 ft'); // => 5.17 ft
 qty.toPrec('2 ft'); // => 6 ft
 qty.toPrec('2'); // => 6 ft
 
-var qty = new Qty('6.3782 m');
+const qty = new Qty('6.3782 m');
 qty.toPrec('dm'); // => 6.4 m
 qty.toPrec('cm'); // => 6.38 m
 qty.toPrec('mm'); // => 6.378 m
@@ -198,7 +226,7 @@ qty.toPrec('5 cm'); // => 6.4 m
 qty.toPrec('10 m'); // => 10 m
 qty.toPrec(0.1); // => 6.3 m
 
-var qty = new Qty('1.146 MPa');
+const qty = new Qty('1.146 MPa');
 qty.toPrec('0.1 bar'); // => 1.15 MPa
 ```
 
