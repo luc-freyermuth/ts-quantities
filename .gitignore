@@ -3,3 +3,4 @@ src/.committed-quantities.js
 node_modules/
 tags
 dist/
+/test.ts
