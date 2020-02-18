@@ -420,9 +420,17 @@ export function getUnits(kind?: string): string[] {
  * @returns {string[]} aliases for unit
  * @throws {QtyError} if unit is unknown
  */
-export function getAliases(unitName) {
+export function getAliases(unitName: string) {
     if (!UNIT_MAP[unitName]) {
         throw new QtyError('Unit not recognized');
     }
     return UNITS[UNIT_MAP[unitName]][0];
+}
+
+/**
+ * @param {string} unit
+ * @returns {boolean} is unit a prefix
+ */
+export function isPrefix(unit: string): boolean {
+    return !!PREFIX_VALUES[unit];
 }
