@@ -13,4 +13,12 @@ export interface ScalarAndUnit {
 export type UnitSource = Qty | string;
 export type Source = UnitSource | number;
 
-export type UnitDefinition = [string[], number, string, string[]?, string[]?];
+export interface UnitDefinition {
+    aliases: string[];
+    equivalentUnitRepresentation?: {
+        numerator: string[];
+        denominator: string[];
+    };
+    scalar: number,
+    unitType: string;
+}

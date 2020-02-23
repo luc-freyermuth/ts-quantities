@@ -49,7 +49,7 @@ function unitSignatureVector() {
     let n: number;
     for (const numeratorUnit of this.numerator) {
         if ((r = UNITS[numeratorUnit])) {
-            n = SIGNATURE_VECTOR.indexOf(r[2]);
+            n = SIGNATURE_VECTOR.indexOf(r.unitType);
             if (n >= 0) {
                 vector[n] = vector[n] + 1;
             }
@@ -58,7 +58,7 @@ function unitSignatureVector() {
 
     for (const denominatorUnit of this.denominator) {
         if ((r = UNITS[denominatorUnit])) {
-            n = SIGNATURE_VECTOR.indexOf(r[2]);
+            n = SIGNATURE_VECTOR.indexOf(r.unitType);
             if (n >= 0) {
                 vector[n] = vector[n] - 1;
             }
